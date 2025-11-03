@@ -1,0 +1,17 @@
+.home {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.game-button {
+    background-color: rgb(255, 89, 222);
+    border: 0px;
+    border-radius: 15%;
+    font-family: "Press Start 2P", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    transition: background 0.3s ease; 
+    width: 300px;
+}

@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+body{
+  background-color: #8000FF;
+  color: 	#00ffcc;
+  font-family: "Press Start 2P", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.home, .simon-game, .leaderboard {
+  margin-top: 50px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(100px, 1fr));
+  grid-template-rows: repeat(2, minmax(100px, 1fr));
+  gap: 20px;
+  width: min(90vw, 400px);
+  margin: 2rem auto;
+}
+
+.color-button {
+  aspect-ratio: 1 / 1; /* ensures square buttons */
+  border-radius: 15px;
+  opacity: 0.9;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  border: none;
+  width:100%;
+}
+
+.color-button.active {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px white;
+}
+
+.color-button.red { background-color: #e74c3c; }
+.color-button.green { background-color: #27ae60; }
+.color-button.blue { background-color: #3498db; }
+.color-button.yellow { background-color: #f1c40f; }
+
+.leaderboard ul {
+  list-style: none;
+  padding: 0;
+}
+.leaderboard li {
+  font-size: 18px;
+  margin: 5px 0;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(100px, 1fr));
+  gap: 20px;
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 10px;
+}
+
+.color-button {
+  aspect-ratio: 1 / 1;
+  border-radius: 15px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.color-button.active {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px white;
+}
+
+.wrong-class{
+    background-color: red;
+}
+
+.exit-button {
+    background-color: rgb(255, 89, 222);
+    border: 0px;
+    border-radius: 15%;
+    font-family: "Press Start 2P", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    box-shadow:rgb(255, 65, 217) 5px 5px;
+    width: 100px;
+}
