@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './leaderboard.css'
 
 const Leaderboard = () => {
   const [triviaScores, setTriviaScores] = useState([]);

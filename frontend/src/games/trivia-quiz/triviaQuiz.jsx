@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './style.css';
 
 const TriviaQuiz = () => {
   const navigate = useNavigate();
@@ -96,15 +97,18 @@ const TriviaQuiz = () => {
           <h3>{selectedCategory} Quiz</h3>
           <p>Question {currentQuestion + 1} of {questions.length}</p>
           <p>{questions[currentQuestion].question}</p>
+          <div className='options'>
           {questions[currentQuestion].options.map(opt => (
             <button
               key={opt}
               onClick={() => handleAnswer(opt)}
+              className='options-button'
               style={{ display: 'block', margin: '10px' }}
             >
               {opt}
             </button>
           ))}
+          </div>
         </div>
       )}
       {showScore && (

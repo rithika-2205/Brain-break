@@ -1,123 +1,155 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "./style.css";
 
 const TicTacToe = () => {
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [isXNext, setIsXNext] = useState(true);
-  const [player1, setPlayer1] = useState('');
-  const [gameOver, setGameOver] = useState(false);
+  const [isPlayerTurn, setIsPlayerTurn] = useState(true);
+  const [winner, setWinner] = useState(null);
+  const [username, setUsername] = useState("");
+  const [gameStarted, setGameStarted] = useState(false);
+  const [message, setMessage] = useState("Enter your username and press Start");
   const navigate = useNavigate();
 
-  // Bot makes a random move after player's turn
-  useEffect(() => {
-    if (!isXNext && !gameOver && !calculateWinner(board) && board.includes(null)) {
-      const timer = setTimeout(() => {
-        const availableMoves = board
-          .map((cell, index) => (cell === null ? index : null))
-          .filter(index => index !== null);
-        if (availableMoves.length > 0) {
-          const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-          const newBoard = [...board];
-          newBoard[randomMove] = 'O';
-          setBoard(newBoard);
-          setIsXNext(true);
+  const lines = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+    [0, 4, 8], [2, 4, 6]             // diagonals
+  ];
 
-          const winner = calculateWinner(newBoard);
-          if (winner || !newBoard.includes(null)) {
-            setGameOver(true);
-            const result = {
-              player1: player1 || 'Player',
-              player2: 'Bot',
-              winner: winner ? (winner === 'X' ? 'player1' : 'player2') : 'draw',
-            };
-            axios.post('http://localhost:5000/api/games/tictactoe', result)
-              .then(() => navigate('/leaderboard'))
-              .catch(err => console.log(err));
-          }
-        }
-      }, 500); // Delay for bot move to feel natural
-      return () => clearTimeout(timer);
-    }
-  }, [isXNext, board, gameOver, player1, navigate]);
-
-  const handleClick = (index) => {
-    if (board[index] || gameOver || !isXNext || calculateWinner(board)) return;
-    const newBoard = [...board];
-    newBoard[index] = 'X';
-    setBoard(newBoard);
-    setIsXNext(false);
-
-    const winner = calculateWinner(newBoard);
-    if (winner || !newBoard.includes(null)) {
-      setGameOver(true);
-      const result = {
-        player1: player1 || 'Player',
-        player2: 'Bot',
-        winner: winner ? (winner === 'X' ? 'player1' : 'player2') : 'draw',
-      };
-      axios.post('http://localhost:5000/api/games/tictactoe', result)
-        .then(() => navigate('/leaderboard'))
-        .catch(err => console.log(err));
-    }
-  };
-
-  const calculateWinner = (board) => {
-    const lines = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6]
-    ];
-    for (let line of lines) {
-      const [a, b, c] = line;
+  // ✅ Check for a winner or draw
+  const checkWinner = (board) => {
+    for (let [a, b, c] of lines) {
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
         return board[a];
       }
     }
-    return null;
+    return board.includes(null) ? null : "Draw";
   };
 
-  const status = gameOver
-    ? calculateWinner(board)
-      ? `Winner: ${calculateWinner(board) === 'X' ? player1 || 'Player' : 'Bot'}`
-      : 'Draw'
-    : `Your turn${player1 ? `, ${player1}` : ''} (X)`;
+  // ✅ Simple bot move
+  const botMove = (newBoard) => {
+    const emptyIndices = newBoard
+      .map((val, idx) => (val === null ? idx : null))
+      .filter((val) => val !== null);
+
+    if (emptyIndices.length === 0) return;
+
+    const randomIndex =
+      emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    newBoard[randomIndex] = "O";
+    setBoard([...newBoard]);
+    setIsPlayerTurn(true);
+  };
+
+  // ✅ Handle player click
+  const handleClick = (index) => {
+    if (!gameStarted || board[index] || winner || !isPlayerTurn) return;
+
+    const newBoard = [...board];
+    newBoard[index] = "X";
+    setBoard(newBoard);
+    setIsPlayerTurn(false);
+  };
+
+  // ✅ Game logic with winner posting
+  useEffect(() => {
+    if (!gameStarted) return;
+
+    const result = checkWinner(board);
+    if (result) {
+      setWinner(result);
+      setMessage(result === "Draw" ? "It's a Draw!" : `${result} Wins!`);
+
+      const gameResult = {
+        player1: username || "Player",
+        player2: "Bot",
+        winner:
+          result === "Draw"
+            ? "draw"
+            : result === "X"
+            ? "player1"
+            : "player2",
+      };
+
+      axios
+        .post("http://localhost:5000/api/games/tictactoe", gameResult)
+        .then(() => navigate("/leaderboard"))
+        .catch((err) => console.error("Error posting result:", err));
+
+      setGameStarted(false);
+    } else if (!isPlayerTurn) {
+      setTimeout(() => botMove([...board]), 500);
+    }
+  }, [board, isPlayerTurn]);
+
+  // ✅ Start Game
+  const startGame = () => {
+    if (!username.trim()) {
+      setMessage("⚠️ Please enter a username first!");
+      return;
+    }
+    setBoard(Array(9).fill(null));
+    setWinner(null);
+    setIsPlayerTurn(true);
+    setGameStarted(true);
+    setMessage("Your turn!");
+  };
+
+  // ✅ Reset Game
+  const resetGame = () => {
+    setBoard(Array(9).fill(null));
+    setWinner(null);
+    setIsPlayerTurn(true);
+    setGameStarted(false);
+    setMessage("Enter your username and press Start");
+  };
 
   return (
-    <div>
-      <h2>Tic Tac Toe</h2>
-      {!player1 && !gameOver && (
-        <div>
-          <input
-            type="text"
-            placeholder="Enter your name"
-            value={player1}
-            onChange={(e) => setPlayer1(e.target.value)}
-          />
-        </div>
+    <div className="ttt-container">
+      <h1>Tic Tac Toe</h1>
+      <h2>{message}</h2>
+
+      <label>
+        Username:
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter name"
+          disabled={gameStarted}
+        />
+      </label>
+      <br />
+      {!gameStarted && !winner && (
+        <button onClick={startGame} className="start-button">
+          Start Game
+        </button>
       )}
-      <div>{status}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 100px)', gap: '5px' }}>
-        {board.map((square, index) => (
-          <button
-            key={index}
-            style={{ width: '100px', height: '100px', fontSize: '24px', cursor: square || !isXNext || gameOver ? 'default' : 'pointer' }}
-            onClick={() => handleClick(index)}
-          >
-            {square}
-          </button>
+
+      <div className="board">
+        {board.map((cell, idx) => (
+          <div key={idx} className="cell" onClick={() => handleClick(idx)}>
+            {cell}
+          </div>
         ))}
       </div>
-      <button
-        onClick={() => {
-          setBoard(Array(9).fill(null));
-          setIsXNext(true);
-          setGameOver(false);
-        }}
-        style={{ marginTop: '10px' }}
-      >
-        Reset
-      </button>
+
+      {winner && (
+        <div className="game-end">
+          <h3>{winner === "Draw" ? "It's a Draw!" : `${winner} Wins!`}</h3>
+          <button onClick={resetGame} className="reset-button">
+            Play Again
+          </button>
+          <button
+            onClick={() => navigate("/leaderboard")}
+            className="leaderboard-button"
+          >
+            View Leaderboard
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -27,7 +27,7 @@ button {
   margin: 2rem auto;
 }
 
-.color-button {
+button {
   aspect-ratio: 1 / 1; /* ensures square buttons */
   border-radius: 15px;
   opacity: 0.9;
@@ -35,6 +35,7 @@ button {
   cursor: pointer;
   border: none;
   width:100%;
+  height:200px;
 }
 
 .color-button.active {
@@ -65,13 +66,14 @@ button {
   padding: 10px;
 }
 
-.color-button {
+.color-buttons {
   aspect-ratio: 1 / 1;
   border-radius: 15px;
   transition: transform 0.2s, box-shadow 0.2s;
   border: none;
   cursor: pointer;
   width: 100%;
+  height: 200px;
 }
 
 .color-button.active {
@@ -83,7 +85,7 @@ button {
     background-color: red;
 }
 
-.exit-button {
+.option-button {
     background-color: rgb(255, 89, 222);
     border: 0px;
     border-radius: 15%;
@@ -91,5 +93,7 @@ button {
     font-weight: 400;
     font-style: normal;
     box-shadow:rgb(255, 65, 217) 5px 5px;
-    width: 100px;
+    max-width: 300px;
+    height: 40px;
 }
+
